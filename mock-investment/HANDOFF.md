@@ -10,7 +10,8 @@
 
 - 전체 규칙·포트폴리오·근거: [`README.md`](./README.md)
 - 기계가 읽는 데이터: [`portfolios.json`](./portfolios.json)  ← 계산의 단일 원천(single source of truth)
-- 실행 스크립트: [`weekly_report.py`](./weekly_report.py)  ← 계산 로직 완비, **가격 조회 한 곳만 API 연결**
+- 실행 스크립트: [`weekly_report.py`](./weekly_report.py)  ← 계산 로직 완비, **가격/수급 조회만 API 연결**
+- 트레이딩 정책: [`TRADING-POLICY.md`](./TRADING-POLICY.md)  ← 수급 기반 리밸런싱 규칙(집행 기준)
 - 주차별 로그: [`weekly-log.md`](./weekly-log.md)
 
 ## 데스크탑에서 할 일 (순서대로)

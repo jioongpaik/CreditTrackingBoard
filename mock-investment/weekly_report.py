@@ -43,6 +43,19 @@ def fetch_price(code, name=None, on_date=None):
     raise NotImplementedError(
         f"fetch_price 미구현: {name or ''}({code}) — 데스크탑에서 API로 연결하세요."
     )
+
+
+def fetch_investor_flows(code, name=None, days=20):
+    """종목별 투자자별 순매수(외국인/기관)를 반환. TRADING-POLICY.md의 1순위 신호.
+    반환 예: {"foreign_net_5d": +12000, "inst_net_5d": +8000,
+             "foreign_net_20d": +55000, "inst_net_20d": -3000}  (단위: 주 또는 원, 일관되게)
+
+    TODO(데스크탑): 한국투자증권 OpenAPI(외국인/기관 매매동향) 또는
+      KRX 정보데이터시스템 / 공공데이터포털 투자자별 거래실적으로 연결.
+    """
+    raise NotImplementedError(
+        f"fetch_investor_flows 미구현: {name or ''}({code}) — 수급 신호용, 데스크탑에서 API 연결."
+    )
 # ─────────────────────────────────────────────────────────────
 
 
