@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "start_date": "2026-09-05",
+    "setup_date": "2026-09-07",
+    "seed_krw": 22279060,
+    "constraint": "KRX-listed only. No foreign stocks, no foreign spot. (Baek's RIA domestic-return account restriction applies to both sides.)",
+    "scoring": "Cumulative return vs 2026-09-05 baseline. Both sides start at 0% today.",
+    "benchmarks": ["KOSPI", "SPX"],
+    "disclaimer": "Test only. Results are NOT used for real investment decisions.",
+    "price_source_note": "Prices to be fetched via the exchange API available on the user's desktop local Claude. This remote/web session cannot reach finance APIs (egress-blocked)."
+  },
+  "human": {
+    "name": "백지웅",
+    "account": "RIA 국내복귀계좌",
+    "style": "Volatility-aware, ETF-diversified. Aggressive overall (US: semi/AI/growth).",
+    "as_of_note": "start_price and shares are from the user's real account screenshot (2026-09-05 close). ETF codes marked null need name->code resolution via API.",
+    "cost_basis_krw": 27595327,
+    "start_value_krw": 22279060,
+    "inception_return_pct": -19.27,
+    "holdings": [
+      {"name": "TIGER 반도체TOP10",   "code": null, "shares": 146, "start_price": 37070, "start_value": 5412220, "sector": "반도체"},
+      {"name": "SOL 코리아밸류업TR",   "code": null, "shares": 130, "start_price": 33340, "start_value": 4334200, "sector": "가치/밸류업"},
+      {"name": "SOL 조선TOP3플러스",   "code": null, "shares": 112, "start_price": 27820, "start_value": 3115840, "sector": "조선"},
+      {"name": "ACE 원자력TOP10",      "code": null, "shares": 43,  "start_price": 58780, "start_value": 2527540, "sector": "원전"},
+      {"name": "PLUS K방산",           "code": null, "shares": 42,  "start_price": 51500, "start_value": 2163000, "sector": "방산"},
+      {"name": "TIGER 2차전지TOP10",   "code": null, "shares": 168, "start_price": 10420, "start_value": 1750560, "sector": "2차전지"},
+      {"name": "KODEX 로봇액티브",     "code": null, "shares": 55,  "start_price": 31380, "start_value": 1725900, "sector": "로봇"},
+      {"name": "KoAct 배당성장액티브", "code": null, "shares": 30,  "start_price": 21830, "start_value": 654900,  "sector": "배당"},
+      {"name": "SOL 한국원자력SMR",    "code": null, "shares": 20,  "start_price": 16350, "start_value": 327000,  "sector": "원전/SMR"},
+      {"name": "두산에너빌리티",       "code": "034020", "shares": 3, "start_price": 89300, "start_value": 267900, "sector": "원전/발전"}
+    ]
+  },
+  "claude": {
+    "strategy": "Concentrate ONLY in Baek's three stated conviction themes (nuclear, semiconductor, robotics) via sector leaders. Drop his shipbuilding/defense/battery/value/dividend sleeves to maximize theme purity. Aggressive.",
+    "locked_at": "2026-09-07",
+    "seed_krw": 22279060,
+    "sector_targets": {"반도체·AI메모리": 0.47, "원전·전력": 0.30, "로봇": 0.23},
+    "picks": [
+      {"name": "SK하이닉스",      "code": "000660", "weight": 0.22, "alloc_krw": 4901393, "start_price": null,  "shares": null, "sector": "반도체·AI메모리", "thesis": "HBM 글로벌 1위, AI 메모리 순수노출"},
+      {"name": "삼성전자",        "code": "005930", "weight": 0.13, "alloc_krw": 2896278, "start_price": null,  "shares": null, "sector": "반도체",        "thesis": "대형주 앵커, HBM 추격+파운드리 옵션"},
+      {"name": "한미반도체",      "code": "042700", "weight": 0.12, "alloc_krw": 2673487, "start_price": null,  "shares": null, "sector": "HBM 장비",       "thesis": "TC본더 준독점, AI capex 레버리지"},
+      {"name": "두산에너빌리티",  "code": "034020", "weight": 0.15, "alloc_krw": 3341859, "start_price": 89300, "shares": null, "sector": "원전/SMR",       "thesis": "원전/SMR 대장"},
+      {"name": "HD현대일렉트릭",  "code": "267260", "weight": 0.15, "alloc_krw": 3341859, "start_price": null,  "shares": null, "sector": "전력기기",       "thesis": "원전+AI 데이터센터 전력수요 교집합"},
+      {"name": "레인보우로보틱스", "code": "277810", "weight": 0.13, "alloc_krw": 2896278, "start_price": null,  "shares": null, "sector": "로봇",           "thesis": "휴머노이드, 삼성전자 지분투자"},
+      {"name": "두산로보틱스",    "code": "454910", "weight": 0.10, "alloc_krw": 2227906, "start_price": null,  "shares": null, "sector": "로봇",           "thesis": "협동로봇 국내 1위"}
+    ]
+  },
+  "weekly_results": [
+    {"week": 0, "date": "2026-09-05", "human_pct": 0.0, "claude_pct": 0.0, "kospi_pct": 0.0, "spx_pct": 0.0, "note": "baseline / start line"}
+  ]
+}
