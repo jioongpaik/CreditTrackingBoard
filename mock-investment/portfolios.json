@@ -10,7 +10,9 @@
       "SPX"
     ],
     "disclaimer": "Test only. Results are NOT used for real investment decisions.",
-    "price_source_note": "Prices to be fetched via the exchange API available on the user's desktop local Claude. This remote/web session cannot reach finance APIs (egress-blocked)."
+    "price_source_note": "Prices to be fetched via the exchange API available on the user's desktop local Claude. This remote/web session cannot reach finance APIs (egress-blocked).",
+    "kospi_start": 6687.21,
+    "spx_start": 7718.6
   },
   "human": {
     "name": "백지웅",

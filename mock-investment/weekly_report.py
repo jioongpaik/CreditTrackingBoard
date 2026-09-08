@@ -35,6 +35,7 @@ START_DATE = "2026-09-05"
 # stock-brief venv 파이썬으로 실행할 것. 자세한 전제는 market_data.py 참조.
 from market_data import (  # noqa: E402
     fetch_price, fetch_investor_flows, fetch_disclosures, resolve_code,
+    fetch_index_levels,
 )
 # ─────────────────────────────────────────────────────────────
 
@@ -124,7 +125,15 @@ def run_week(d, week, human_value=None, kospi_now=None, spx_now=None):
     claude_value = d["claude"]["cash_krw"] + value_now(d["claude"]["picks"])
     claude_pct = round((claude_value / seed - 1) * 100, 2)
 
-    # 벤치마크 (지수 레벨을 넘기거나 fetch_price류로 조회). 시작레벨은 meta에 저장.
+    # 벤치마크: 인자로 안 주면 자동 조회(코스피=pykrx, S&P500=yfinance).
+    # 시작레벨은 meta의 kospi_start/spx_start.
+    if kospi_now is None or spx_now is None:
+        lv = fetch_index_levels()
+        if kospi_now is None:
+            kospi_now = lv["kospi"]
+        if spx_now is None:
+            spx_now = lv["spx"]
+
     def bench_pct(now, key):
         base = d["meta"].get(f"{key}_start")
         if base is None or now is None:

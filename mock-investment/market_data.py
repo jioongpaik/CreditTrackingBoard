@@ -111,6 +111,33 @@ def fetch_investor_flows(code, name=None, days=20) -> dict:
     }
 
 
+def fetch_index_levels() -> dict:
+    """벤치마크 현재 지수레벨: 코스피(pykrx 지수 1001), S&P500(yfinance ^GSPC).
+    한쪽 조회가 실패해도 예외를 던지지 않고 그 값만 None(성적표에서 그
+    벤치마크만 '—'). 주간 루틴이 --kospi/--spx 없이도 자동으로 채우게 한다."""
+    out = {"kospi": None, "spx": None}
+    try:
+        require_krx_credentials()
+        todate = _ymd()
+        fromdate = (datetime.date.today() - datetime.timedelta(days=10)).strftime("%Y%m%d")
+        with pykrx_stock() as stock:
+            df = stock.get_index_ohlcv_by_date(fromdate, todate, "1001")
+        vals = [c for c in df["종가"].tolist() if c == c] if df is not None and not df.empty else []
+        if vals:
+            out["kospi"] = round(float(vals[-1]), 2)
+    except Exception:
+        pass
+    try:
+        import yfinance as yf
+        h = yf.Ticker("^GSPC").history(period="10d")
+        cl = [c for c in h["Close"].tolist() if c == c]
+        if cl:
+            out["spx"] = round(float(cl[-1]), 2)
+    except Exception:
+        pass
+    return out
+
+
 def fetch_disclosures(code, name=None, days=7) -> list:
     """최근 `days` 일간 DART 공시 목록. TRADING-POLICY 4순위(촉매) 신호원.
     반환: [{date, title, url}, ...]. ETF 처럼 공시 주체가 아니면 [](corp_code
