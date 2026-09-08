@@ -1,0 +1,12 @@
+# 절대 커밋 금지 — API 키/시크릿
+.env
+*.key
+secrets.*
+
+# 파이썬 캐시
+__pycache__/
+*.pyc
+
+# 생성물 캐시 — DART corp_code(30MB, 재생성됨). 커밋 금지.
+data/
+corp_codes.xml

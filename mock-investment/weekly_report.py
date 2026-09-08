@@ -30,32 +30,12 @@ START_DATE = "2026-09-05"
 
 
 # ─────────────────────────────────────────────────────────────
-# 여기 한 곳만 채우면 된다. 거래소 API로 code의 종가/현재가를 반환.
-def fetch_price(code, name=None, on_date=None):
-    """KRX 종목코드(code)의 가격을 원(KRW)으로 반환.
-    on_date=None 이면 최신 종가. on_date="2026-09-05" 처럼 주면 그 날 종가.
-
-    TODO(데스크탑): 아래를 님 API 호출로 교체.
-      예) 한국투자증권 OpenAPI: 국내주식 시세 inquire-price / inquire-daily-price
-          공공데이터포털 금융위 주식시세정보: getStockPriceInfo (basDt=날짜)
-    ETF 이름만 있고 code가 null인 경우(인간측 ETF), 먼저 name->code를 조회해 채운다.
-    """
-    raise NotImplementedError(
-        f"fetch_price 미구현: {name or ''}({code}) — 데스크탑에서 API로 연결하세요."
-    )
-
-
-def fetch_investor_flows(code, name=None, days=20):
-    """종목별 투자자별 순매수(외국인/기관)를 반환. TRADING-POLICY.md의 1순위 신호.
-    반환 예: {"foreign_net_5d": +12000, "inst_net_5d": +8000,
-             "foreign_net_20d": +55000, "inst_net_20d": -3000}  (단위: 주 또는 원, 일관되게)
-
-    TODO(데스크탑): 한국투자증권 OpenAPI(외국인/기관 매매동향) 또는
-      KRX 정보데이터시스템 / 공공데이터포털 투자자별 거래실적으로 연결.
-    """
-    raise NotImplementedError(
-        f"fetch_investor_flows 미구현: {name or ''}({code}) — 수급 신호용, 데스크탑에서 API 연결."
-    )
+# 가격/수급/공시는 market_data.py 어댑터가 stock-brief 의 검증된 KRX/DART 계층에
+# 연결한다(새 API 키 불필요 — 사용자가 준 OPENDART 키 + KRX 로그인 재활용).
+# stock-brief venv 파이썬으로 실행할 것. 자세한 전제는 market_data.py 참조.
+from market_data import (  # noqa: E402
+    fetch_price, fetch_investor_flows, fetch_disclosures, resolve_code,
+)
 # ─────────────────────────────────────────────────────────────
 
 
@@ -71,7 +51,14 @@ def save(d):
 
 
 def finalize(d):
-    """Claude 종목의 진입가(9/5 종가)와 매수 수량을 확정."""
+    """Claude 종목의 진입가(9/5 종가)와 매수 수량을 확정. 인간측 ETF 코드도 채운다."""
+    # 인간측 ETF: code 가 null 인 것을 이름으로 해석해 채운다(재평가에 필요).
+    for h in d["human"]["holdings"]:
+        if not h.get("code"):
+            h["code"] = resolve_code(h["name"])
+            if not h["code"]:
+                print(f"  [경고] 코드 미해결 인간측 종목: {h['name']}")
+
     seed = d["claude"]["seed_krw"]
     spent = 0
     for p in d["claude"]["picks"]:
@@ -86,6 +73,33 @@ def finalize(d):
     print(f"[finalize] Claude 진입 확정: 투자 {spent:,}원 / 현금 {seed - spent:,}원")
     for p in d["claude"]["picks"]:
         print(f"  {p['name']:12} {p['shares']:>4}주 @ {p['start_price']:,} = {p['shares']*p['start_price']:,}")
+
+
+def signals(d, days=7):
+    """Claude 보유 7종목의 수급(외인·기관)+공시 신호를 모아 출력. TRADING-POLICY
+    1순위(수급)·4순위(촉매) 신호원. 매매 판단(리밸런싱)은 이 신호를 근거로
+    weekly-log.md 에 사람이/LLM 이 기록한다 — 코드가 매매를 자동 집행하지 않는다."""
+    print(f"\n=== 🤖 Claude 보유 종목 신호 (최근 {days}일 공시 / 5·20일 수급) ===")
+    for p in d["claude"]["picks"]:
+        code, name = p["code"], p["name"]
+        try:
+            fl = fetch_investor_flows(code, name)
+            f5, i5 = fl["foreign_net_5d"], fl["inst_net_5d"]
+            f20, i20 = fl["foreign_net_20d"], fl["inst_net_20d"]
+            flow = (f"외인5d {f5/1e8:+.0f}억·20d {f20/1e8:+.0f}억 / "
+                    f"기관5d {i5/1e8:+.0f}억·20d {i20/1e8:+.0f}억")
+            dual = "🟢쌍끌이매수" if (f20 > 0 and i20 > 0) else (
+                   "🔴쌍끌이매도" if (f20 < 0 and i20 < 0) else "⚪혼조")
+        except Exception as e:
+            flow, dual = f"수급조회실패({e})", "?"
+        try:
+            disc = fetch_disclosures(code, name, days=days)
+            dtxt = "; ".join(f"{x['date']} {x['title']}" for x in disc[:5]) or "공시없음"
+        except Exception as e:
+            dtxt = f"공시조회실패({e})"
+        print(f"\n  {name}({code}) {dual}")
+        print(f"    수급: {flow}")
+        print(f"    공시: {dtxt}")
 
 
 def value_now(holdings, price_key_shares="shares"):
@@ -145,6 +159,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--finalize", action="store_true", help="Claude 진입가/수량 확정(최초 1회)")
     ap.add_argument("--week", type=int, help="해당 주차 계산")
+    ap.add_argument("--signals", action="store_true", help="보유종목 수급+공시 신호 조회(매매 판단용)")
     ap.add_argument("--human-value", type=int, default=None, help="인간측 실제 계좌 평가금액(원)")
     ap.add_argument("--kospi", type=float, default=None, help="현재 코스피 지수")
     ap.add_argument("--spx", type=float, default=None, help="현재 S&P500 지수")
@@ -153,9 +168,11 @@ def main():
     d = load()
     if args.finalize:
         finalize(d)
+    if args.signals:
+        signals(d)
     if args.week is not None:
         run_week(d, args.week, args.human_value, args.kospi, args.spx)
-    if not args.finalize and args.week is None:
+    if not args.finalize and args.week is None and not args.signals:
         ap.print_help()
 
 
