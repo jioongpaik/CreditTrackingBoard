@@ -2,9 +2,10 @@
   "meta": {
     "start_date": "2026-09-05",
     "setup_date": "2026-09-07",
-    "seed_krw": 22279060,
-    "constraint": "KRX-listed only. No foreign stocks, no foreign spot. (Baek's RIA domestic-return account restriction applies to both sides.)",
-    "scoring": "Cumulative return vs 2026-09-05 baseline. Both sides start at 0% today.",
+    "seed_krw": 39210743,
+    "seed_krw_note": "2026-09-09 정정: 최초 시드(₩22,279,060)는 인간측 9/5 주식 평가금액만 반영하고 RIA 계좌의 예수금을 누락했다. 9/5 예수금 재구성 = 현재 예수금 ₩16,208,713 + 이번주 물타기 ₩722,970(매입금액 델타) = ₩16,931,683. 양측 시드를 주식+예수금 = ₩39,210,743 으로 대칭 정정. Claude 락 진입분(₩22,139,400)은 불변, 잔여현금이 ₩139,660 -> ₩17,071,343(드라이파우더)로 증가. W0 는 양측 0% 로 불변(데이터 누락 정정이지 후견지명 아님). 인간측은 W1 부터 실계좌 총액(주식 평가금액 + 예수금)으로 추적.",
+    "seed_krw_stock_only_orig": 22279060,
+    "scoring": "Cumulative return vs 2026-09-05 baseline (stock sleeve + cash). Both sides start at 0% on W0.",
     "benchmarks": [
       "KOSPI",
       "SPX"
@@ -18,10 +19,15 @@
     "name": "백지웅",
     "account": "RIA 국내복귀계좌",
     "style": "Volatility-aware, ETF-diversified. Aggressive overall (US: semi/AI/growth).",
-    "as_of_note": "start_price and shares are from the user's real account screenshot (2026-09-05 close). ETF codes marked null need name->code resolution via API.",
+    "as_of_note": "holdings[] is the 2026-09-05 stock snapshot (frozen W0 record). From W1 on the human side is scored by REAL account total (stock 평가금액 + 예수금) via --human-value, so post-W0 share changes (e.g. W1 물타기) are NOT edited into holdings[] — they show up in the account total.",
     "cost_basis_krw": 27595327,
-    "start_value_krw": 22279060,
+    "cost_basis_krw_w1": 28318297,
+    "start_value_krw": 39210743,
+    "stock_start_value_krw": 22279060,
+    "cash_start_krw": 16931683,
+    "tracking": "real_account_total",
     "inception_return_pct": -19.27,
+    "w1_watering_krw": 722970,
     "holdings": [
       {
         "name": "TIGER 반도체TOP10",
@@ -108,12 +114,14 @@
   "claude": {
     "strategy": "Concentrate ONLY in Baek's three stated conviction themes (nuclear, semiconductor, robotics) via sector leaders. Drop his shipbuilding/defense/battery/value/dividend sleeves to maximize theme purity. Aggressive.",
     "locked_at": "2026-09-07",
-    "seed_krw": 22279060,
+    "seed_krw": 39210743,
+    "seed_krw_note": "2026-09-09 정정으로 인간측 예수금 대칭 반영(meta.seed_krw_note 참조). 락 진입분 불변.",
     "sector_targets": {
       "반도체·AI메모리": 0.47,
       "원전·전력": 0.3,
       "로봇": 0.23
     },
+    "sector_targets_note": "락 시점(₩22.14M 투자분) 기준 비중. 2026-09-09 정정 후 테마 밴드(TRADING-POLICY §4)는 '투자된 자본' 기준으로 판정하고 드라이파우더는 밴드 계산에서 제외한다.",
     "picks": [
       {
         "name": "SK하이닉스",
@@ -187,7 +195,10 @@
       }
     ],
     "invested_krw": 22139400,
-    "cash_krw": 139660
+    "cash_krw": 17071343,
+    "cash_krw_orig": 139660,
+    "cash_krw_note": "2026-09-09 정정: 인간측 예수금(9/5 재구성 ₩16,931,683) 대칭 반영. W0 락 진입분(₩22,139,400)은 불변. 드라이파우더 ₩17,071,343 은 TRADING-POLICY §3 규칙대로 W1(9/9) 이후 수급 강신호 시 투입, 매매 시점에 weekly-log 에 기록.",
+    "drypowder_krw": 17071343
   },
   "weekly_results": [
     {
@@ -202,12 +213,12 @@
     {
       "week": 1,
       "date": "2026-09-09",
-      "human_pct": 2.12,
-      "claude_pct": 5.81,
-      "kospi_pct": 5.4,
+      "human_pct": 1.2,
+      "claude_pct": 3.25,
+      "kospi_pct": 5.54,
       "spx_pct": -0.58,
-      "human_value": 22752175,
-      "claude_value": 23574010,
+      "human_value": 39682053,
+      "claude_value": 40486293,
       "winner": "🤖"
     }
   ]
