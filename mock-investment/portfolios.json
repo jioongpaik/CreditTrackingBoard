@@ -198,6 +198,17 @@
       "kospi_pct": 0.0,
       "spx_pct": 0.0,
       "note": "baseline / start line"
+    },
+    {
+      "week": 1,
+      "date": "2026-09-09",
+      "human_pct": 2.12,
+      "claude_pct": 5.81,
+      "kospi_pct": 5.4,
+      "spx_pct": -0.58,
+      "human_value": 22752175,
+      "claude_value": 23574010,
+      "winner": "🤖"
     }
   ]
 }
