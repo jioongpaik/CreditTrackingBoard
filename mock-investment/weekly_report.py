@@ -114,9 +114,12 @@ def value_now(holdings, price_key_shares="shares"):
 def run_week(d, week, human_value=None, kospi_now=None, spx_now=None):
     seed = d["meta"]["seed_krw"]
 
-    # 인간측: 기본은 보유종목 종가 재평가(프로즌 베이스라인). 실제 계좌값을 주면 그걸 사용.
+    # 인간측: 기본은 보유종목 종가 재평가 + 프로즌 예수금(2026-09-09 정정으로
+    # start_value_krw 가 주식+예수금 합산으로 바뀌었으므로, 비교 기준을 맞추려면
+    # 예수금을 더해야 한다 — 안 더하면 "주식만 재평가" vs "주식+예수금 출발선"을
+    # 비교하는 셈이 되어 수익률이 터무니없이 왜곡된다). 실제 계좌값을 주면 그걸 그대로 사용.
     if human_value is None:
-        human_value = value_now(d["human"]["holdings"])
+        human_value = value_now(d["human"]["holdings"]) + d["human"].get("cash_start_krw", 0)
     human_pct = round((human_value / d["human"]["start_value_krw"] - 1) * 100, 2)
 
     # 클로드측: 보유주식 평가 + 잔여현금
