@@ -231,6 +231,17 @@
       "human_value": 39460243,
       "claude_value": 39766443,
       "winner": "🤖"
+    },
+    {
+      "week": 3,
+      "date": "2026-09-14",
+      "human_pct": 0.64,
+      "claude_pct": 1.42,
+      "kospi_pct": 3.33,
+      "spx_pct": -0.8,
+      "human_value": 39460243,
+      "claude_value": 39766443,
+      "winner": "🤖"
     }
   ]
 }
