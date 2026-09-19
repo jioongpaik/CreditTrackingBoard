@@ -1,0 +1,259 @@
+<title>모의투자 대시보드</title>
+<style>
+  :root{
+    --bg:#eef1f0; --surface:#ffffff; --surface-2:#f5f7f6; --ink:#14201d; --ink-dim:#5b6b66;
+    --border:#d7ddda; --human:#2f7fb0; --claude:#cc6b3f; --kospi:#8b7fae; --spx:#9aa3ab;
+    --good:#2f8f5b; --bad:#c1483f; --dot-buy:#2f8f5b; --dot-sell:#c1483f; --dot-mix:#9aa3ab;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12171a; --surface:#1a2226; --surface-2:#1f292d; --ink:#eef2f0; --ink-dim:#9fb0ac;
+      --border:#2a3439; --human:#6fb8e6; --claude:#e8916a; --kospi:#b6a8dd; --spx:#b7c0c6;
+      --good:#56c98a; --bad:#e37468; --dot-buy:#56c98a; --dot-sell:#e37468; --dot-mix:#b7c0c6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12171a; --surface:#1a2226; --surface-2:#1f292d; --ink:#eef2f0; --ink-dim:#9fb0ac;
+    --border:#2a3439; --human:#6fb8e6; --claude:#e8916a; --kospi:#b6a8dd; --spx:#b7c0c6;
+    --good:#56c98a; --bad:#e37468; --dot-buy:#56c98a; --dot-sell:#e37468; --dot-mix:#b7c0c6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Noto Sans KR","Noto Sans",-apple-system,sans-serif;
+    padding-inline:16px; padding-block:28px 40px;
+  }
+  .wrap{max-width:920px; margin:0 auto; display:flex; flex-direction:column; gap:28px;}
+  .mono{font-family:"JetBrains Mono","IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums;}
+
+  header{display:flex; flex-direction:column; gap:6px;}
+  .eyebrow{font-size:13px; font-weight:700; letter-spacing:.08em; color:var(--ink-dim); text-transform:uppercase;}
+  h1{font-size:clamp(26px,5vw,36px); font-weight:900; margin:0; text-wrap:balance;}
+  .subline{color:var(--ink-dim); font-size:14px; display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center;}
+  .disclaimer{
+    font-size:12.5px; color:var(--ink-dim); background:var(--surface-2); border:1px solid var(--border);
+    border-radius:8px; padding:8px 12px; margin-top:4px;
+  }
+
+  .scoreboard{display:grid; grid-template-columns:repeat(5,1fr); gap:10px;}
+  @media (max-width:760px){ .scoreboard{grid-template-columns:repeat(2,1fr);} }
+  .tile{
+    background:var(--surface); border:1px solid var(--border); border-top:3px solid var(--accent,var(--border));
+    border-radius:10px; padding:14px 14px 12px; display:flex; flex-direction:column; gap:4px; min-width:0;
+  }
+  .tile .label{font-size:12px; color:var(--ink-dim); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tile .num{font-size:22px; font-weight:800; font-family:"JetBrains Mono",monospace; font-variant-numeric:tabular-nums;}
+  .tile .sub{font-size:11.5px; color:var(--ink-dim);}
+  .tile.human{--accent:var(--human);} .tile.claude{--accent:var(--claude);}
+  .tile.kospi{--accent:var(--kospi);} .tile.spx{--accent:var(--spx);}
+  .tile.gap{--accent:var(--good);}
+  .up{color:var(--good);} .down{color:var(--bad);}
+
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px;}
+  .card h2{font-size:15px; margin:0 0 14px; font-weight:800;}
+
+  .legend{display:flex; flex-wrap:wrap; gap:14px; font-size:12.5px; color:var(--ink-dim); margin-bottom:10px;}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .legend i{width:12px; height:3px; border-radius:2px; display:inline-block;}
+
+  .chart-scroll{overflow-x:auto;}
+  svg.chart{width:100%; min-width:520px; height:auto; display:block;}
+  .axis-label{font-size:10.5px; fill:var(--ink-dim); font-family:"JetBrains Mono",monospace;}
+  .grid-line{stroke:var(--border); stroke-width:1;}
+  .zero-line{stroke:var(--ink-dim); stroke-width:1; stroke-dasharray:3 3;}
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th{text-align:left; font-size:11px; color:var(--ink-dim); font-weight:700; text-transform:uppercase; letter-spacing:.03em;
+     padding:0 8px 8px; border-bottom:1px solid var(--border);}
+  td{padding:7px 8px; border-bottom:1px solid var(--border); vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td.num, th.num{text-align:right; font-family:"JetBrains Mono",monospace; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .table-scroll{overflow-x:auto;}
+  .cash-row td{color:var(--ink-dim); font-style:italic;}
+
+  .holdings-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:700px){ .holdings-grid{grid-template-columns:1fr;} }
+  .theme-tag{
+    display:inline-block; font-size:10.5px; padding:1px 7px; border-radius:999px; border:1px solid var(--border);
+    color:var(--ink-dim); white-space:nowrap;
+  }
+
+  .signal-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:8px 16px; margin-bottom:14px;}
+  @media (max-width:600px){ .signal-grid{grid-template-columns:1fr;} }
+  .signal{display:flex; gap:8px; align-items:baseline; font-size:13px;}
+  .dot{width:8px; height:8px; border-radius:50%; flex:none; margin-top:3px;}
+  .dot.buy{background:var(--dot-buy);} .dot.sell{background:var(--dot-sell);} .dot.mix{background:var(--dot-mix);}
+  .signal b{font-weight:700;}
+  .signal .note{color:var(--ink-dim);}
+
+  .readout p{margin:0 0 10px; font-size:14px; line-height:1.65;}
+  .readout p:last-child{margin-bottom:0;}
+  .streak{color:var(--claude); font-weight:800;}
+
+  footer{font-size:12px; color:var(--ink-dim); display:flex; flex-wrap:wrap; gap:6px 16px; justify-content:space-between; align-items:center;}
+  footer a{color:var(--ink-dim);}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">🤖 vs 🧑 모의투자 실험</div>
+    <h1>주간 대시보드</h1>
+    <div class="subline">
+      <span>W4 · 2026-09-19 기준</span>
+      <span>·</span>
+      <span>출발선 2026-09-05, 시드 ₩39,210,743 (양측 동일)</span>
+    </div>
+    <div class="disclaimer">⚠️ 이 실험은 테스트입니다. 결과를 실제 투자 판단·매매·자문으로 쓰지 않습니다.</div>
+  </header>
+
+  <div class="scoreboard">
+    <div class="tile human">
+      <div class="label">🧑 백지웅</div>
+      <div class="num down">−0.04%</div>
+      <div class="sub">₩39,194,778</div>
+    </div>
+    <div class="tile claude">
+      <div class="label">🤖 Claude</div>
+      <div class="num up">+0.94%</div>
+      <div class="sub">₩39,577,443</div>
+    </div>
+    <div class="tile gap">
+      <div class="label">격차 (우세 🤖)</div>
+      <div class="num up">+0.98%p</div>
+      <div class="sub">4주 연속 🤖 우세</div>
+    </div>
+    <div class="tile kospi">
+      <div class="label">코스피</div>
+      <div class="num up">+3.10%</div>
+      <div class="sub">6,687.21 출발</div>
+    </div>
+    <div class="tile spx">
+      <div class="label">S&amp;P500</div>
+      <div class="num down">−0.88%</div>
+      <div class="sub">7,718.60 출발</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>누적 수익률 추이 (W0 → W4)</h2>
+    <div class="legend">
+      <span><i style="background:var(--human)"></i>🧑 백지웅</span>
+      <span><i style="background:var(--claude)"></i>🤖 Claude</span>
+      <span><i style="background:var(--kospi)"></i>코스피</span>
+      <span><i style="background:var(--spx)"></i>S&amp;P500</span>
+    </div>
+    <div class="chart-scroll">
+      <svg class="chart" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+        <line class="grid-line" x1="44" y1="20" x2="44" y2="260"></line>
+        <line class="grid-line" x1="44" y1="20" x2="584" y2="20"></line>
+        <line class="grid-line" x1="44" y1="80" x2="584" y2="80"></line>
+        <line class="grid-line" x1="44" y1="140" x2="584" y2="140"></line>
+        <line class="zero-line" x1="44" y1="200" x2="584" y2="200"></line>
+        <line class="grid-line" x1="44" y1="260" x2="584" y2="260"></line>
+        <text class="axis-label" x="10" y="24">+6%</text>
+        <text class="axis-label" x="10" y="84">+4%</text>
+        <text class="axis-label" x="10" y="144">+2%</text>
+        <text class="axis-label" x="16" y="204">0%</text>
+        <text class="axis-label" x="10" y="264">−2%</text>
+
+        <polyline fill="none" stroke="var(--kospi)" stroke-width="2.25" points="44,200 179,33.8 314,100.1 449,100.1 584,107"></polyline>
+        <polyline fill="none" stroke="var(--human)" stroke-width="2.25" points="44,200 179,164 314,180.8 449,180.8 584,201.2"></polyline>
+        <polyline fill="none" stroke="var(--claude)" stroke-width="2.75" points="44,200 179,102.5 314,157.4 449,157.4 584,171.8"></polyline>
+        <polyline fill="none" stroke="var(--spx)" stroke-width="2.25" stroke-dasharray="5 4" points="44,200 179,217.4 314,225.2 449,224 584,226.4"></polyline>
+
+        <g class="mono">
+          <circle cx="584" cy="107" r="3.2" fill="var(--kospi)"></circle>
+          <circle cx="584" cy="201.2" r="3.2" fill="var(--human)"></circle>
+          <circle cx="584" cy="171.8" r="3.6" fill="var(--claude)"></circle>
+          <circle cx="584" cy="226.4" r="3.2" fill="var(--spx)"></circle>
+        </g>
+
+        <text class="axis-label" x="44" y="280" text-anchor="middle">W0·9/5</text>
+        <text class="axis-label" x="179" y="280" text-anchor="middle">W1·9/9</text>
+        <text class="axis-label" x="314" y="280" text-anchor="middle">W2·9/11</text>
+        <text class="axis-label" x="449" y="280" text-anchor="middle">W3·9/14</text>
+        <text class="axis-label" x="584" y="280" text-anchor="middle">W4·9/19</text>
+      </svg>
+    </div>
+
+    <div class="table-scroll" style="margin-top:14px;">
+      <table>
+        <thead><tr><th>주차</th><th class="num">🧑</th><th class="num">🤖</th><th class="num">코스피</th><th class="num">S&amp;P500</th><th>승자</th></tr></thead>
+        <tbody>
+          <tr><td>W0 · 09-05</td><td class="num">0.00%</td><td class="num">0.00%</td><td class="num">0.00%</td><td class="num">0.00%</td><td>— 출발</td></tr>
+          <tr><td>W1 · 09-09</td><td class="num">+1.20%</td><td class="num">+3.25%</td><td class="num">+5.54%</td><td class="num">−0.58%</td><td>🤖</td></tr>
+          <tr><td>W2 · 09-11</td><td class="num">+0.64%</td><td class="num">+1.42%</td><td class="num">+3.33%</td><td class="num">−0.84%</td><td>🤖</td></tr>
+          <tr><td>W3 · 09-14</td><td class="num">+0.64%</td><td class="num">+1.42%</td><td class="num">+3.33%</td><td class="num">−0.80%</td><td>🤖</td></tr>
+          <tr><td>W4 · 09-19</td><td class="num down">−0.04%</td><td class="num up">+0.94%</td><td class="num">+3.10%</td><td class="num">−0.88%</td><td>🤖</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="holdings-grid">
+    <div class="card">
+      <h2>🧑 백지웅 · RIA 계좌 (ETF 10종)</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>종목</th><th>테마</th><th class="num">비중</th></tr></thead>
+          <tbody>
+            <tr><td>TIGER 반도체TOP10</td><td><span class="theme-tag">반도체</span></td><td class="num">24.3%</td></tr>
+            <tr><td>SOL 코리아밸류업TR</td><td><span class="theme-tag">가치/밸류업</span></td><td class="num">19.5%</td></tr>
+            <tr><td>SOL 조선TOP3플러스</td><td><span class="theme-tag">조선</span></td><td class="num">14.0%</td></tr>
+            <tr><td>ACE 원자력TOP10</td><td><span class="theme-tag">원전</span></td><td class="num">11.3%</td></tr>
+            <tr><td>PLUS K방산</td><td><span class="theme-tag">방산</span></td><td class="num">9.7%</td></tr>
+            <tr><td>TIGER 2차전지TOP10</td><td><span class="theme-tag">2차전지</span></td><td class="num">7.9%</td></tr>
+            <tr><td>KODEX 로봇액티브</td><td><span class="theme-tag">로봇</span></td><td class="num">7.7%</td></tr>
+            <tr><td>KoAct 배당성장액티브</td><td><span class="theme-tag">배당</span></td><td class="num">2.9%</td></tr>
+            <tr><td>SOL 한국원자력SMR</td><td><span class="theme-tag">원전/SMR</span></td><td class="num">1.5%</td></tr>
+            <tr><td>두산에너빌리티</td><td><span class="theme-tag">원전/발전</span></td><td class="num">1.2%</td></tr>
+            <tr class="cash-row"><td>예수금 (동결, W1 기준)</td><td>—</td><td class="num">₩16,931,683</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🤖 Claude · 3테마 집중 (7종)</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>종목</th><th>테마</th><th class="num">비중</th></tr></thead>
+          <tbody>
+            <tr><td>SK하이닉스</td><td><span class="theme-tag">반도체·AI메모리</span></td><td class="num">22%</td></tr>
+            <tr><td>두산에너빌리티</td><td><span class="theme-tag">원전/SMR</span></td><td class="num">15%</td></tr>
+            <tr><td>HD현대일렉트릭</td><td><span class="theme-tag">전력기기</span></td><td class="num">15%</td></tr>
+            <tr><td>삼성전자</td><td><span class="theme-tag">반도체</span></td><td class="num">13%</td></tr>
+            <tr><td>레인보우로보틱스</td><td><span class="theme-tag">로봇</span></td><td class="num">13%</td></tr>
+            <tr><td>한미반도체</td><td><span class="theme-tag">HBM 장비</span></td><td class="num">12%</td></tr>
+            <tr><td>두산로보틱스</td><td><span class="theme-tag">로봇</span></td><td class="num">10%</td></tr>
+            <tr class="cash-row"><td>드라이파우더 (미투입)</td><td>—</td><td class="num">₩17,071,343</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>이번 주 읽기 (W4 · 09-18 종가 기준)</h2>
+    <div class="signal-grid">
+      <div class="signal"><span class="dot sell"></span><div><b>SK하이닉스</b> <span class="note">외인·기관 20일 쌍끌이매도 5주째, 가격은 오히려 20일선 +7.17% — 괴리 확대</span></div></div>
+      <div class="signal"><span class="dot mix"></span><div><b>한미반도체</b> <span class="note">20일 외인 아직 −1,637억이나 5일은 +270억로 반등 조짐</span></div></div>
+      <div class="signal"><span class="dot mix"></span><div><b>두산에너빌리티</b> <span class="note">기관 20일 순매수 지속(+4,151억), 외인은 매도 — 혼조</span></div></div>
+      <div class="signal"><span class="dot mix"></span><div><b>레인보우로보틱스</b> <span class="note">가격 20일선 −2.1%로 트림 임계(−5%)에서 다시 멀어짐</span></div></div>
+      <div class="signal"><span class="dot mix"></span><div><b>삼성전자</b> <span class="note">20일 외인 매도·기관 소폭 매수, 가격 20일선 근접 — 혼조</span></div></div>
+      <div class="signal"><span class="dot sell"></span><div><b>두산로보틱스</b> <span class="note">쌍끌이매도이나 규모 미미, 가격 20일선 −0.5% — 실질 신호 없음</span></div></div>
+    </div>
+    <div class="readout">
+      <p>이번 주도 <b>무매매(홀드)</b>. TRADING-POLICY §3의 확대(쌍끌이매수 &amp; 가격&gt;20일선)·축소(쌍끌이매도 &amp; 가격&lt;20일선 −5%) 조건을 동시에 충족하는 종목이 7종 중 하나도 없었다. 드라이파우더 ₩17,071,343 은 <span class="streak">5주째(W0~W4) 미투입</span>, 회전율 0%.</p>
+      <p>가장 눈에 띄는 건 SK하이닉스의 수급-가격 괴리 — 외인·기관이 계속 팔아도 가격은 20일선 위로 계속 밀어 올리고 있다. 다음 주에도 이 괴리가 계속되는지, 한미반도체 외인 수급이 20일 기준으로도 반등하는지가 관전 포인트.</p>
+    </div>
+  </div>
+
+  <footer>
+    <span>매주 자동 갱신 · 상세 로그는 <a href="https://github.com/jioongpaik/CreditTrackingBoard/blob/claude/mock-investment-weekly-report-htilza/weekly-log.md" target="_blank" rel="noopener">weekly-log.md</a></span>
+    <span><a href="https://github.com/jioongpaik/CreditTrackingBoard/tree/claude/mock-investment-weekly-report-htilza" target="_blank" rel="noopener">GitHub 저장소 →</a></span>
+  </footer>
+
+</div>
