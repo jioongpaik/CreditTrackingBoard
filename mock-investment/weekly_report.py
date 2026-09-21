@@ -111,6 +111,19 @@ def value_now(holdings, price_key_shares="shares"):
     return total
 
 
+def picks_value_and_prices(picks):
+    """Claude 7종목 평가금액 + 종목별 현재가(dict, code 기준). 매주 weekly_results 에
+    pick_prices 로 남겨두면 다음 주 리포트가 직전 주 종가와 비교해 종목별 주간
+    등락률(최고/최저)을 계산할 수 있다(누적수익률과 별개 지표)."""
+    total = 0
+    prices = {}
+    for p in picks:
+        px = fetch_price(p["code"], p["name"])
+        prices[p["code"]] = px
+        total += p["shares"] * px
+    return total, prices
+
+
 def run_week(d, week, human_value=None, kospi_now=None, spx_now=None):
     seed = d["meta"]["seed_krw"]
 
@@ -122,11 +135,26 @@ def run_week(d, week, human_value=None, kospi_now=None, spx_now=None):
         human_value = value_now(d["human"]["holdings"]) + d["human"].get("cash_start_krw", 0)
     human_pct = round((human_value / d["human"]["start_value_krw"] - 1) * 100, 2)
 
-    # 클로드측: 보유주식 평가 + 잔여현금
+    # 클로드측: 보유주식 평가 + 잔여현금 (종목별 현재가도 함께 기록 — 주간 등락률용)
     if d["claude"].get("cash_krw") is None:
         sys.exit("먼저 --finalize 로 Claude 진입가를 확정하세요.")
-    claude_value = d["claude"]["cash_krw"] + value_now(d["claude"]["picks"])
+    picks_value, pick_prices = picks_value_and_prices(d["claude"]["picks"])
+    claude_value = d["claude"]["cash_krw"] + picks_value
     claude_pct = round((claude_value / seed - 1) * 100, 2)
+
+    # 직전 주 종목별 종가(pick_prices)가 있으면 이번 주 종목별 주간 등락률(최고/최저)을 계산.
+    prev_rows = [r for r in d["weekly_results"] if r["week"] < week and r.get("pick_prices")]
+    pick_wow = None
+    if prev_rows:
+        prev_prices = max(prev_rows, key=lambda r: r["week"])["pick_prices"]
+        pick_wow = []
+        for p in d["claude"]["picks"]:
+            prev_px = prev_prices.get(p["code"])
+            if not prev_px:
+                continue
+            wow_pct = round((pick_prices[p["code"]] / prev_px - 1) * 100, 2)
+            pick_wow.append({"name": p["name"], "code": p["code"], "pct": wow_pct})
+        pick_wow.sort(key=lambda x: x["pct"], reverse=True)
 
     # 벤치마크: 인자로 안 주면 자동 조회(코스피=pykrx, S&P500=yfinance).
     # 시작레벨은 meta의 kospi_start/spx_start.
@@ -152,8 +180,10 @@ def run_week(d, week, human_value=None, kospi_now=None, spx_now=None):
         "human_pct": human_pct, "claude_pct": claude_pct,
         "kospi_pct": kospi_pct, "spx_pct": spx_pct,
         "human_value": human_value, "claude_value": claude_value,
-        "winner": winner,
+        "winner": winner, "pick_prices": pick_prices,
     }
+    if pick_wow:
+        row["pick_wow"] = pick_wow
     d["weekly_results"] = [r for r in d["weekly_results"] if r["week"] != week] + [row]
     d["weekly_results"].sort(key=lambda r: r["week"])
     save(d)
@@ -163,6 +193,13 @@ def run_week(d, week, human_value=None, kospi_now=None, spx_now=None):
     print(f"🤖 Claude : {claude_pct:+.2f}%  (평가 {claude_value:,}원)")
     print(f"코스피    : {kospi_pct}   S&P500: {spx_pct}")
     print(f"이번주 우세: {winner}")
+    if pick_wow:
+        print("\n-- Claude 종목별 이번 주 등락률 (직전 주 종가 대비) --")
+        for x in pick_wow:
+            print(f"  {x['name']:10} {x['pct']:+.2f}%")
+        print(f"  최고: {pick_wow[0]['name']} {pick_wow[0]['pct']:+.2f}% / 최저: {pick_wow[-1]['name']} {pick_wow[-1]['pct']:+.2f}%")
+    else:
+        print("\n(종목별 주간 등락률: 직전 주 pick_prices 기록 없음 — 다음 주부터 계산됨)")
     print("\n→ README.md 성적표와 weekly-log.md도 갱신하고 커밋/푸시하세요.")
     return row
 

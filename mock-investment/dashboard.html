@@ -52,6 +52,7 @@
 
   .card{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px;}
   .card h2{font-size:15px; margin:0 0 14px; font-weight:800;}
+  .card .hint{font-size:12px; color:var(--ink-dim); margin:-8px 0 14px;}
 
   .legend{display:flex; flex-wrap:wrap; gap:14px; font-size:12.5px; color:var(--ink-dim); margin-bottom:10px;}
   .legend span{display:inline-flex; align-items:center; gap:6px;}
@@ -78,6 +79,18 @@
     display:inline-block; font-size:10.5px; padding:1px 7px; border-radius:999px; border:1px solid var(--border);
     color:var(--ink-dim); white-space:nowrap;
   }
+
+  .wow-list{display:flex; flex-direction:column; gap:9px;}
+  .wow-row{display:grid; grid-template-columns:112px 1fr 68px; align-items:center; gap:10px;}
+  @media (max-width:480px){ .wow-row{grid-template-columns:88px 1fr 58px; gap:6px; font-size:12px;} }
+  .wow-name{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:5px;}
+  .wow-badge{font-size:10px;}
+  .wow-track{position:relative; height:18px; background:var(--surface-2); border-radius:4px;}
+  .wow-track::before{content:""; position:absolute; left:50%; top:0; bottom:0; width:1px; background:var(--border);}
+  .wow-bar{position:absolute; top:2px; bottom:2px; border-radius:3px;}
+  .wow-bar.pos{left:50%; background:var(--good);}
+  .wow-bar.neg{right:50%; background:var(--bad);}
+  .wow-pct{font-family:"JetBrains Mono",monospace; font-variant-numeric:tabular-nums; font-size:13px; text-align:right; font-weight:700;}
 
   .signal-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:8px 16px; margin-bottom:14px;}
   @media (max-width:600px){ .signal-grid{grid-template-columns:1fr;} }
@@ -192,6 +205,48 @@
     </div>
   </div>
 
+  <div class="card">
+    <h2>🤖 종목별 주간 등락 (직전 주 종가 대비)</h2>
+    <div class="hint">기준: 09-11 종가 → 09-18 종가 · 누적수익률과 다른 지표(이번 한 주만의 변동)</div>
+    <div class="wow-list">
+      <div class="wow-row">
+        <div class="wow-name">두산에너빌리티 <span class="wow-badge">🔽최저</span></div>
+        <div class="wow-track"><div class="wow-bar neg" style="width:46.0%"></div></div>
+        <div class="wow-pct down">−5.62%</div>
+      </div>
+      <div class="wow-row">
+        <div class="wow-name">HD현대일렉트릭</div>
+        <div class="wow-track"><div class="wow-bar neg" style="width:21.9%"></div></div>
+        <div class="wow-pct down">−2.68%</div>
+      </div>
+      <div class="wow-row">
+        <div class="wow-name">두산로보틱스</div>
+        <div class="wow-track"><div class="wow-bar neg" style="width:21.8%"></div></div>
+        <div class="wow-pct down">−2.66%</div>
+      </div>
+      <div class="wow-row">
+        <div class="wow-name">레인보우로보틱스</div>
+        <div class="wow-track"><div class="wow-bar neg" style="width:2.8%"></div></div>
+        <div class="wow-pct down">−0.34%</div>
+      </div>
+      <div class="wow-row">
+        <div class="wow-name">삼성전자</div>
+        <div class="wow-track"><div class="wow-bar pos" style="width:1.6%"></div></div>
+        <div class="wow-pct up">+0.19%</div>
+      </div>
+      <div class="wow-row">
+        <div class="wow-name">한미반도체</div>
+        <div class="wow-track"><div class="wow-bar pos" style="width:14.2%"></div></div>
+        <div class="wow-pct up">+1.73%</div>
+      </div>
+      <div class="wow-row">
+        <div class="wow-name">SK하이닉스 <span class="wow-badge">🔼최고</span></div>
+        <div class="wow-track"><div class="wow-bar pos" style="width:16.7%"></div></div>
+        <div class="wow-pct up">+2.04%</div>
+      </div>
+    </div>
+  </div>
+
   <div class="holdings-grid">
     <div class="card">
       <h2>🧑 백지웅 · RIA 계좌 (ETF 10종)</h2>
@@ -247,7 +302,7 @@
     </div>
     <div class="readout">
       <p>이번 주도 <b>무매매(홀드)</b>. TRADING-POLICY §3의 확대(쌍끌이매수 &amp; 가격&gt;20일선)·축소(쌍끌이매도 &amp; 가격&lt;20일선 −5%) 조건을 동시에 충족하는 종목이 7종 중 하나도 없었다. 드라이파우더 ₩17,071,343 은 <span class="streak">5주째(W0~W4) 미투입</span>, 회전율 0%.</p>
-      <p>가장 눈에 띄는 건 SK하이닉스의 수급-가격 괴리 — 외인·기관이 계속 팔아도 가격은 20일선 위로 계속 밀어 올리고 있다. 다음 주에도 이 괴리가 계속되는지, 한미반도체 외인 수급이 20일 기준으로도 반등하는지가 관전 포인트.</p>
+      <p>주간 등락으로 보면 <b>두산에너빌리티</b>가 −5.62%로 가장 많이 빠졌고(기관은 여전히 사는 중이라 수급과는 반대 방향), <b>SK하이닉스</b>가 +2.04%로 가장 강했다 — 수급은 계속 팔리는데 가격은 계속 오르는 괴리가 이번 주도 이어졌다.</p>
     </div>
   </div>
 
