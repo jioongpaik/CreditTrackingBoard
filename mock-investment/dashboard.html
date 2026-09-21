@@ -106,6 +106,16 @@
 
   footer{font-size:12px; color:var(--ink-dim); display:flex; flex-wrap:wrap; gap:6px 16px; justify-content:space-between; align-items:center;}
   footer a{color:var(--ink-dim);}
+
+  .banner{
+    background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--claude);
+    border-radius:10px; padding:12px 16px; font-size:13px; line-height:1.6; display:flex; flex-direction:column; gap:4px;
+  }
+  .banner .tag{font-size:10.5px; font-weight:800; letter-spacing:.04em; color:var(--claude); text-transform:uppercase;}
+  .sleeve-tag{
+    display:inline-block; font-size:10px; font-weight:700; padding:1px 7px; border-radius:999px;
+    background:var(--claude); color:var(--surface); white-space:nowrap; margin-left:6px;
+  }
 </style>
 
 <div class="wrap">
@@ -120,6 +130,11 @@
     </div>
     <div class="disclaimer">⚠️ 이 실험은 테스트입니다. 결과를 실제 투자 판단·매매·자문으로 쓰지 않습니다.</div>
   </header>
+
+  <div class="banner">
+    <div class="tag">🆕 정책 개정 · 2026-09-21</div>
+    <div>5주 연속 무매매 이후, 드라이파우더를 <b>위성(satellite) 슬리브</b>로 전환 — CORE 7종(원전·반도체·로봇)은 그대로 두고, 조건은 동일하게 유지한 채(20일 외인+기관 쌍끌이매수 &amp; 가격&gt;20일선) 유니버스만 코스피·코스닥 전체로 확장. 첫 매수: <b>우리금융지주</b>(금융지주) · <b>SK이노베이션</b>(정유/2차전지) — 합계 ₩10,168,200. 잔여 드라이파우더 ₩6,903,143. 이 거래는 W5 성적표부터 반영된다.</div>
+  </div>
 
   <div class="scoreboard">
     <div class="tile human">
@@ -271,7 +286,7 @@
     </div>
 
     <div class="card">
-      <h2>🤖 Claude · 3테마 집중 (7종)</h2>
+      <h2>🤖 Claude · CORE 7종 + 위성 2종</h2>
       <div class="table-scroll">
         <table>
           <thead><tr><th>종목</th><th>테마</th><th class="num">비중</th></tr></thead>
@@ -283,7 +298,9 @@
             <tr><td>레인보우로보틱스</td><td><span class="theme-tag">로봇</span></td><td class="num">13%</td></tr>
             <tr><td>한미반도체</td><td><span class="theme-tag">HBM 장비</span></td><td class="num">12%</td></tr>
             <tr><td>두산로보틱스</td><td><span class="theme-tag">로봇</span></td><td class="num">10%</td></tr>
-            <tr class="cash-row"><td>드라이파우더 (미투입)</td><td>—</td><td class="num">₩17,071,343</td></tr>
+            <tr><td>우리금융지주<span class="sleeve-tag">위성</span></td><td><span class="theme-tag">금융지주</span></td><td class="num">₩5,103,000</td></tr>
+            <tr><td>SK이노베이션<span class="sleeve-tag">위성</span></td><td><span class="theme-tag">정유/2차전지</span></td><td class="num">₩5,065,200</td></tr>
+            <tr class="cash-row"><td>드라이파우더 (잔여)</td><td>—</td><td class="num">₩6,903,143</td></tr>
           </tbody>
         </table>
       </div>
@@ -301,8 +318,9 @@
       <div class="signal"><span class="dot sell"></span><div><b>두산로보틱스</b> <span class="note">쌍끌이매도이나 규모 미미, 가격 20일선 −0.5% — 실질 신호 없음</span></div></div>
     </div>
     <div class="readout">
-      <p>이번 주도 <b>무매매(홀드)</b>. TRADING-POLICY §3의 확대(쌍끌이매수 &amp; 가격&gt;20일선)·축소(쌍끌이매도 &amp; 가격&lt;20일선 −5%) 조건을 동시에 충족하는 종목이 7종 중 하나도 없었다. 드라이파우더 ₩17,071,343 은 <span class="streak">5주째(W0~W4) 미투입</span>, 회전율 0%.</p>
+      <p>W4까지는 <b>무매매(홀드)</b>. TRADING-POLICY §3의 확대(쌍끌이매수 &amp; 가격&gt;20일선)·축소(쌍끌이매도 &amp; 가격&lt;20일선 −5%) 조건을 동시에 충족하는 종목이 7종 중 하나도 없어 <span class="streak">5주째(W0~W4) 회전율 0%</span>였다.</p>
       <p>주간 등락으로 보면 <b>두산에너빌리티</b>가 −5.62%로 가장 많이 빠졌고(기관은 여전히 사는 중이라 수급과는 반대 방향), <b>SK하이닉스</b>가 +2.04%로 가장 강했다 — 수급은 계속 팔리는데 가격은 계속 오르는 괴리가 이번 주도 이어졌다.</p>
+      <p><b>2026-09-21(주중):</b> 무매매가 반복된 원인이 신호 기준보다 좁은 유니버스(3테마 7종)에 있다고 보고, 드라이파우더를 위성 슬리브로 개방했다. 코스피·코스닥 전종목 스캔에서 20일 쌍끌이매수가 5일까지 이어지고 가격도 20일선 위에서 과열 없이 건전한 <b>우리금융지주</b>·<b>SK이노베이션</b> 두 종목을 매수(₩10,168,200). CORE 7종은 손대지 않았다.</p>
     </div>
   </div>
 

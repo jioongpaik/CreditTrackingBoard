@@ -77,11 +77,12 @@ def finalize(d):
 
 
 def signals(d, days=7):
-    """Claude 보유 7종목의 수급(외인·기관)+공시 신호를 모아 출력. TRADING-POLICY
-    1순위(수급)·4순위(촉매) 신호원. 매매 판단(리밸런싱)은 이 신호를 근거로
-    weekly-log.md 에 사람이/LLM 이 기록한다 — 코드가 매매를 자동 집행하지 않는다."""
+    """Claude 보유 종목(core+satellite) 전부의 수급(외인·기관)+공시 신호를 모아 출력.
+    TRADING-POLICY 1순위(수급)·4순위(촉매) 신호원. 매매 판단(리밸런싱)은 이 신호를
+    근거로 weekly-log.md 에 사람이/LLM 이 기록한다 — 코드가 매매를 자동 집행하지 않는다."""
     print(f"\n=== 🤖 Claude 보유 종목 신호 (최근 {days}일 공시 / 5·20일 수급) ===")
     for p in d["claude"]["picks"]:
+        sleeve_tag = f" [{p.get('sleeve', 'core').upper()}]"
         code, name = p["code"], p["name"]
         try:
             fl = fetch_investor_flows(code, name)
@@ -98,7 +99,7 @@ def signals(d, days=7):
             dtxt = "; ".join(f"{x['date']} {x['title']}" for x in disc[:5]) or "공시없음"
         except Exception as e:
             dtxt = f"공시조회실패({e})"
-        print(f"\n  {name}({code}) {dual}")
+        print(f"\n  {name}({code}){sleeve_tag} {dual}")
         print(f"    수급: {flow}")
         print(f"    공시: {dtxt}")
 
@@ -112,7 +113,7 @@ def value_now(holdings, price_key_shares="shares"):
 
 
 def picks_value_and_prices(picks):
-    """Claude 7종목 평가금액 + 종목별 현재가(dict, code 기준). 매주 weekly_results 에
+    """Claude 보유종목(core+satellite) 평가금액 + 종목별 현재가(dict, code 기준). 매주 weekly_results 에
     pick_prices 로 남겨두면 다음 주 리포트가 직전 주 종가와 비교해 종목별 주간
     등락률(최고/최저)을 계산할 수 있다(누적수익률과 별개 지표)."""
     total = 0

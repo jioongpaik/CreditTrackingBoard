@@ -112,7 +112,7 @@
     ]
   },
   "claude": {
-    "strategy": "Concentrate ONLY in Baek's three stated conviction themes (nuclear, semiconductor, robotics) via sector leaders. Drop his shipbuilding/defense/battery/value/dividend sleeves to maximize theme purity. Aggressive.",
+    "strategy": "Concentrate in Baek's three stated conviction themes (nuclear, semiconductor, robotics) via sector leaders as the CORE sleeve. 2026-09-21 amendment: dry powder now runs as a sector-agnostic SATELLITE sleeve, deployed wherever foreign+institutional 20-day flow is strongest (see satellite_policy_note). Aggressive.",
     "locked_at": "2026-09-07",
     "seed_krw": 39210743,
     "seed_krw_note": "2026-09-09 정정으로 인간측 예수금 대칭 반영(meta.seed_krw_note 참조). 락 진입분 불변.",
@@ -121,7 +121,8 @@
       "원전·전력": 0.3,
       "로봇": 0.23
     },
-    "sector_targets_note": "락 시점(₩22.14M 투자분) 기준 비중. 2026-09-09 정정 후 테마 밴드(TRADING-POLICY §4)는 '투자된 자본' 기준으로 판정하고 드라이파우더는 밴드 계산에서 제외한다.",
+    "sector_targets_note": "CORE 슬리브(락 시점 ₩22.14M)에만 적용되는 비중 — SATELLITE 슬리브는 테마 제한 밖이라 이 비중 계산에서 제외한다. 2026-09-09 정정 후 테마 밴드(TRADING-POLICY §4)는 '투자된 자본' 기준으로 판정.",
+    "satellite_policy_note": "2026-09-21 정책 개정: 5주 연속 무매매(3테마 락 + 엄격한 이중신호 기준의 조합이 좁은 7종 유니버스에서 통계적으로 신호가 거의 안 걸림) 이후, 사용자 요청으로 드라이파우더를 '위성(satellite)' 슬리브로 전환 — 코스피·코스닥 전 종목 대상, 조건은 CORE와 동일(20일 외인+기관 쌍끌이 순매수 & 가격>20일선), 캡: 종목당 위성 배정 자본의 최대 ~30%, 동시 보유 2~3종목 한도, 데이트레이딩 금지·회전율 상한·손절(-20%)·비용 반영·로그 필수는 그대로. TRADING-POLICY.md §8 참조.",
     "picks": [
       {
         "name": "SK하이닉스",
@@ -131,7 +132,8 @@
         "start_price": 1647000,
         "shares": 2,
         "sector": "반도체·AI메모리",
-        "thesis": "HBM 글로벌 1위, AI 메모리 순수노출"
+        "thesis": "HBM 글로벌 1위, AI 메모리 순수노출",
+        "sleeve": "core"
       },
       {
         "name": "삼성전자",
@@ -141,7 +143,8 @@
         "start_price": 255500,
         "shares": 15,
         "sector": "반도체",
-        "thesis": "대형주 앵커, HBM 추격+파운드리 옵션"
+        "thesis": "대형주 앵커, HBM 추격+파운드리 옵션",
+        "sleeve": "core"
       },
       {
         "name": "한미반도체",
@@ -151,7 +154,8 @@
         "start_price": 230000,
         "shares": 17,
         "sector": "HBM 장비",
-        "thesis": "TC본더 준독점, AI capex 레버리지"
+        "thesis": "TC본더 준독점, AI capex 레버리지",
+        "sleeve": "core"
       },
       {
         "name": "두산에너빌리티",
@@ -161,7 +165,8 @@
         "start_price": 89300,
         "shares": 37,
         "sector": "원전/SMR",
-        "thesis": "원전/SMR 대장"
+        "thesis": "원전/SMR 대장",
+        "sleeve": "core"
       },
       {
         "name": "HD현대일렉트릭",
@@ -171,7 +176,8 @@
         "start_price": 714000,
         "shares": 4,
         "sector": "전력기기",
-        "thesis": "원전+AI 데이터센터 전력수요 교집합"
+        "thesis": "원전+AI 데이터센터 전력수요 교집합",
+        "sleeve": "core"
       },
       {
         "name": "레인보우로보틱스",
@@ -181,7 +187,8 @@
         "start_price": 459000,
         "shares": 6,
         "sector": "로봇",
-        "thesis": "휴머노이드, 삼성전자 지분투자"
+        "thesis": "휴머노이드, 삼성전자 지분투자",
+        "sleeve": "core"
       },
       {
         "name": "두산로보틱스",
@@ -191,14 +198,37 @@
         "start_price": 68400,
         "shares": 32,
         "sector": "로봇",
-        "thesis": "협동로봇 국내 1위"
+        "thesis": "협동로봇 국내 1위",
+        "sleeve": "core"
+      },
+      {
+        "name": "우리금융지주",
+        "code": "316140",
+        "start_price": 36450,
+        "shares": 140,
+        "alloc_krw": 5103000,
+        "sector": "금융지주",
+        "thesis": "위성 1호(2026-09-21): 20일 외인+기관 쌍끌이 순매수(외인 +4,371억·기관 +1,516억), 5일도 동반 순매수로 신호 유지, 가격 20일선 +5.29%. 3테마 밖 순수 수급 포착.",
+        "sleeve": "satellite",
+        "entry_date": "2026-09-21"
+      },
+      {
+        "name": "SK이노베이션",
+        "code": "096770",
+        "start_price": 140700,
+        "shares": 36,
+        "alloc_krw": 5065200,
+        "sector": "정유/2차전지",
+        "thesis": "위성 2호(2026-09-21): 20일 외인+기관 쌍끌이 순매수(외인 +1,912억·기관 +1,651억), 가격 20일선 +4.87%. 3테마 밖 순수 수급 포착.",
+        "sleeve": "satellite",
+        "entry_date": "2026-09-21"
       }
     ],
-    "invested_krw": 22139400,
-    "cash_krw": 17071343,
+    "invested_krw": 32307600,
+    "cash_krw": 6903143,
     "cash_krw_orig": 139660,
-    "cash_krw_note": "2026-09-09 정정: 인간측 예수금(9/5 재구성 ₩16,931,683) 대칭 반영. W0 락 진입분(₩22,139,400)은 불변. 드라이파우더 ₩17,071,343 은 TRADING-POLICY §3 규칙대로 W1(9/9) 이후 수급 강신호 시 투입, 매매 시점에 weekly-log 에 기록.",
-    "drypowder_krw": 17071343
+    "cash_krw_note": "2026-09-09 정정: 인간측 예수금(9/5 재구성 ₩16,931,683) 대칭 반영. W0 락 진입분(₩22,139,400)은 불변. 2026-09-21: 드라이파우더 중 ₩10,168,200 을 위성 2종목(우리금융지주·SK이노베이션)에 투입, 잔여 드라이파우더 ₩6,903,143.",
+    "drypowder_krw": 6903143
   },
   "weekly_results": [
     {
