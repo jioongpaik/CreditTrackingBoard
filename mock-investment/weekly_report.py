@@ -132,8 +132,17 @@ def run_week(d, week, human_value=None, kospi_now=None, spx_now=None):
     # start_value_krw 가 주식+예수금 합산으로 바뀌었으므로, 비교 기준을 맞추려면
     # 예수금을 더해야 한다 — 안 더하면 "주식만 재평가" vs "주식+예수금 출발선"을
     # 비교하는 셈이 되어 수익률이 터무니없이 왜곡된다). 실제 계좌값을 주면 그걸 그대로 사용.
+    # 인간측 ETF 별 출발(09-05) 대비 누적수익률 — 대시보드 "🧑 ETF별 vs 코스피" 카드용
+    # (2026-10-06 사용자 요청). 실제 계좌값(--human-value)을 쓰는 주에도 계산한다.
+    human_prices = {h["code"]: fetch_price(h["code"], h["name"]) for h in d["human"]["holdings"]}
+    human_etf_pct = sorted(
+        ({"name": h["name"], "code": h["code"],
+          "pct": round((human_prices[h["code"]] / h["start_price"] - 1) * 100, 2)}
+         for h in d["human"]["holdings"]),
+        key=lambda x: x["pct"], reverse=True)
     if human_value is None:
-        human_value = value_now(d["human"]["holdings"]) + d["human"].get("cash_start_krw", 0)
+        human_value = (sum(h["shares"] * human_prices[h["code"]] for h in d["human"]["holdings"])
+                       + d["human"].get("cash_start_krw", 0))
     human_pct = round((human_value / d["human"]["start_value_krw"] - 1) * 100, 2)
 
     # 클로드측: 보유주식 평가 + 잔여현금 (종목별 현재가도 함께 기록 — 주간 등락률용)
@@ -182,6 +191,7 @@ def run_week(d, week, human_value=None, kospi_now=None, spx_now=None):
         "kospi_pct": kospi_pct, "spx_pct": spx_pct,
         "human_value": human_value, "claude_value": claude_value,
         "winner": winner, "pick_prices": pick_prices,
+        "human_etf_pct": human_etf_pct,
     }
     if pick_wow:
         row["pick_wow"] = pick_wow
@@ -201,6 +211,9 @@ def run_week(d, week, human_value=None, kospi_now=None, spx_now=None):
         print(f"  최고: {pick_wow[0]['name']} {pick_wow[0]['pct']:+.2f}% / 최저: {pick_wow[-1]['name']} {pick_wow[-1]['pct']:+.2f}%")
     else:
         print("\n(종목별 주간 등락률: 직전 주 pick_prices 기록 없음 — 다음 주부터 계산됨)")
+    print(f"\n-- 🧑 ETF별 출발(09-05) 대비 누적수익률 (코스피 {kospi_pct}) --")
+    for x in human_etf_pct:
+        print(f"  {x['name']:16} {x['pct']:+.2f}%")
     print("\n→ README.md 성적표와 weekly-log.md도 갱신하고 커밋/푸시하세요.")
     return row
 
